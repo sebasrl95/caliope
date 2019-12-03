@@ -1,21 +1,46 @@
 const main = {
     upload: function () {
-        var form = $('form')[0]; // You need to use standard javascript object here
+        var model = $('#iptModel').val();
+        var audio = $('#audioFile').val();
+
+        if (!!model == false) {
+            alert('Por favor ingresa modelo');
+            return false;
+        }
+
+        if (!!audio == false) {
+            alert('Por favor ingresa Audio');
+            return false;
+        }
+
+        $('#loading').removeClass("d-none");
+        $("#responseCodeContainer").addClass("d-none");
+        var form = $('form')[0];
         var formData = new FormData(form);
+
         $.ajax({
             url: 'upload',
             data: formData,
             type: 'POST',
-            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-            processData: false, // NEEDED, DON'T OMIT THIS
+            contentType: false,
+            processData: false,
             success: function (data) {
                 console.log(data);
+                if (data.response) {
+                    $("#responseCodeContainer").removeClass("d-none");
+                    $("#responseCodeContainer .card-body samp").html(data.response);
+                }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('Error al enviar la solicitud');
                 console.error("Status: " + textStatus);
                 console.error("Error: " + errorThrown);
+            },
+            complete: function () {
+                $('#loading').addClass("d-none");
             }
         });
+
         return false;
     }
 };
