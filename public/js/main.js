@@ -1,11 +1,10 @@
 const main = {
     upload: function () {
-        var model = $('#iptModel').val();
+        var model = "";
         var audio = $('#audioFile').val();
 
-        if (!!model == false) {
-            alert('Por favor ingresa modelo');
-            return false;
+        if (!!$('#iptModel').val()) {
+            model = $('#iptModel').val();
         }
 
         if (!!audio == false) {

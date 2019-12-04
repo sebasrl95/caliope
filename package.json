@@ -1,7 +1,7 @@
 {
-  "name": "kaliope",
+  "name": "caliope",
   "version": "1.0.0",
-  "description": "Kaliope application",
+  "description": "Caliope application",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

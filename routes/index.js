@@ -28,11 +28,6 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    delfiles('./asr/decode/buzon_recortado');
-    if (!fs.existsSync('./asr/decode/buzon_recortado')) {
-      fs.mkdirSync('./asr/decode/buzon_recortado');
-    }
-
     if (file.mimetype == "audio/wav" || file.mimetype == "audio/x-wav" || file.mimetype == "application/zip" || file.mimetype == "application/x-zip-compressed" || file.mimetype == "multipart/x-zip") {
       mimetype = file.mimetype;
       filename = file.originalname;
@@ -74,7 +69,7 @@ const delfiles = (path) => {
 
 router.post('/upload', upload.single('audio'), async (req, res, next) => {
   try {
-    let model = req.body.model;
+    let model = req.body.model || "";
 
     if (mimetype == "application/zip" || mimetype == "application/x-zip-compressed" || mimetype == "multipart/x-zip") {
       let targetdir = CALIOPE_AUDIOS_PATH;
@@ -85,30 +80,30 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
       }
     }
 
-    // res.json({
-    //   response: model
-    // });
-
-    shell.cd('/var/www/caliope-bintec/asr/decode');
-    shell.exec('./script.sh ' + ((model) ? model : 'credito'), (error, stdout, stderr) => {
-      let response = '';
-      let statusCode;
-
-      if (error != null) {
-        statusCode = 500;
-        response = `exec error: ${JSON.stringify(error)}`
-      }
-
-      response = shell.cat('text').stdout;
-      let audioname = response.split(' ')[0];
-
-      statusCode = 200;
-      res.status(statusCode).json({
-        response: response.split(audioname)[1].trim()
-      });
-      //shell.rm('./buzon_recortado/*');
-      res.end();
+    res.json({
+      response: 'Todo OK'
     });
+
+    // shell.cd('/app/application/asr/decode');
+    // shell.exec('./script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
+    //   let response = '';
+    //   let statusCode;
+
+    //   if (error != null) {
+    //     statusCode = 500;
+    //     response = `exec error: ${JSON.stringify(error)}`
+    //   }
+
+    //   response = shell.cat('text').stdout;
+    //   let audioname = response.split(' ')[0];
+
+    //   statusCode = 200;
+    //   res.status(statusCode).json({
+    //     response: response.split(audioname)[1].trim()
+    //   });
+    //   shell.rm('./buzon_recortado/*');
+    //   res.end();
+    // });
   } catch (error) {
     res.status(500).json({
       error: error
