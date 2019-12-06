@@ -27,7 +27,7 @@ const main = {
                 console.log(data);
                 if (data.response) {
                     $("#responseCodeContainer").removeClass("d-none");
-                    $("#responseCodeContainer .card-body samp").html(data.response);
+                    $("#downloadLink").attr("href", data.response);
                 }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
