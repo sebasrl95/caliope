@@ -34,11 +34,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/', indexRouter);
 
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-    next(createError(404));
-});
-
 // Server initialization
 app.listen(app.get('port'), () => {
     console.log(`App working on port ${app.get('port')}`);

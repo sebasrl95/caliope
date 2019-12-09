@@ -6,10 +6,13 @@ const path = require('path');
 const util = require('util');
 const fs = require('fs');
 const multer = require('multer');
+const Promise = require('bluebird');
 const CALIOPE_AUDIOS_PATH = './asr/decode/buzon_recortado';
 const ZIP_PATH = './uploads';
 let mimetype = null;
 let filename = null;
+let working = false;
+let transcribed = false;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -71,6 +74,7 @@ const delfiles = (path) => {
 
 router.post('/upload', upload.single('audio'), async (req, res, next) => {
   try {
+    transcribed = false;
     let model = req.body.model || "";
 
     if (mimetype == "application/zip" || mimetype == "application/x-zip-compressed" || mimetype == "multipart/x-zip") {
@@ -81,17 +85,31 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
       }
     }
 
-    shell.cd('/app/application/asr/decode');
-    shell.exec('./asr/decode/script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
-      if (error != null) {
-        statusCode = 500;
-        response = `exec error: ${JSON.stringify(error)}`
-      }
-      res.status(200).json({
-        response: '/transcription/text.csv'
+    let cmd = new Promise(function (resolve, reject) {
+      working = true;
+      shell.cd('/app/application/asr/decode');
+      shell.exec('./asr/decode/script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
+        if (error != null) {
+          statusCode = 500;
+          response = `exec error: ${JSON.stringify(error)}`
+        }
+        res.status(200).json({
+          response: '/transcription/text.csv'
+        });
+        shell.rm('./asr/decode/buzon_recortado/*');
+        res.end();
       });
-      shell.rm('./asr/decode/buzon_recortado/*');
-      res.end();
+    });
+
+    cmd.then(() => {
+      working = false;
+      transcribed = true;
+    });
+
+    res.status(200).json({
+      response: '/transcription/text.csv',
+      working,
+      transcribed
     });
   } catch (error) {
     res.status(500).json({
@@ -103,7 +121,13 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
 
 // Home page
 router.get('/', (req, res, next) => {
-  res.render('index', { title: 'Caliope' });
+  res.render('index', { title: 'Caliope', working, transcribed });
+});
+
+router.get('/download', (req, res) => {
+  transcribed = false;
+  const file = `${path.resolve('./public/transcription/')}/text.csv`;
+  res.download(file);
 });
 
 module.exports = router;

@@ -4,17 +4,11 @@
 <head>
   <title><%= title %></title>
   <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel='stylesheet' href='/stylesheets/style.css' />
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="/js/popper.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="/js/main.js"></script>
 </head>
 
@@ -23,7 +17,7 @@
     <div class="row">
       <div class="col-md-6 align-self-center">
         <h1><%= title %></h1>
-        <p>Bienvenido a <%= title %></p>
+        <p>Bienvenido a <%= title %> Working <%= working %> Transcribed <%= transcribed %> </p>
         <form id="form" action="" method="post" enctype="multipart/form-data" onsubmit="return main.upload()">
           <div class="form-group">
             <input id="iptModel" type="text" class="form-control" name="model" placeholder="Ingresa nombre del modelo">
@@ -32,25 +26,43 @@
             <label for="audioFile">Archivo</label>
             <input type="file" name="audio" class="form-control-file" id="audioFile"
               accept="audio/wav,application/zip,application/x-zip-compressed,multipart/x-zip"
-              aria-describedby="fileHelp">
+              aria-describedby="fileHelp" <%= (working) ? 'disabled=true' : '' %>>
             <small id="fileHelp" class="form-text text-muted">Solo se aceptan un archivo <b>.wav</b> o
               <b>.zip</b></small>
           </div>
-          <button type="submit" class="btn btn-primary d-block mx-auto">Enviar</button>
+          <button id="btnSubmit" type="submit" class="btn btn-primary d-block mx-auto"
+            <%= (working) ? 'disabled=true' : '' %>><%= (working) ? 'Transcribiendo' : 'Enviar' %></button>
         </form>
       </div>
       <div class="col-md-6 align-self-center p-5">
-        <div id="loading" class="alert alert-info d-none" role="alert">
-          Cargando...
+        <div id="loading" class="alert alert-info text-center <%= (working) ? '' : 'd-none' %>" role="alert">
+          <%= (working) ? 'Transcripción en progreso' : 'Cargando...' %>
         </div>
         <div id="responseCodeContainer" class="card text-white border-success d-none">
           <div class="card-body text-center">
-            <a id="downloadLink" class="btn btn-lg btn-success" download>Descargar</a>
+            <a id="downloadLink" href="/download" class="btn btn-lg btn-success" onclick="reload()"
+              download>Descargar</a>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <%- (working) ? `
+  <script type="text/javascript">
+      $("#btnSubmit").text("Transcribiendo"); 
+      window.setInterval(function() {
+        window.location.reload();
+      }, 5000);
+  </script>
+  ` : `
+  <script type="text/javascript">$("#btnSubmit").text("Enviar");</script>
+  ` %>
+
+  <%- (transcribed) ? `
+  <script type="text/javascript">
+      $("#responseCodeContainer").removeClass("d-none");
+  </script>
+  ` : `` %>
 </body>
 
 </html>

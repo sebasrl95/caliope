@@ -25,18 +25,14 @@ const main = {
             processData: false,
             success: function (data) {
                 console.log(data);
-                if (data.response) {
-                    $("#responseCodeContainer").removeClass("d-none");
-                    $("#downloadLink").attr("href", data.response);
+                if (data.working) {
+                    window.location.reload();
                 }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert('Error al enviar la solicitud');
                 console.error("Status: " + textStatus);
                 console.error("Error: " + errorThrown);
-            },
-            complete: function () {
-                $('#loading').addClass("d-none");
             }
         });
 
