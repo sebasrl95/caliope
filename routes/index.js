@@ -91,13 +91,10 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
       shell.exec('./asr/decode/script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
         if (error != null) {
           statusCode = 500;
-          response = `exec error: ${JSON.stringify(error)}`
+          reject(`exec error: ${JSON.stringify(error)}`);
         }
-        res.status(200).json({
-          response: '/transcription/text.csv'
-        });
-        shell.rm('./asr/decode/buzon_recortado/*');
-        res.end();
+        shell.rm('/app/application/asr/decode/buzon_recortado/*');
+        resolve(true);
       });
     });
 
