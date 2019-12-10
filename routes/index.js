@@ -76,6 +76,7 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
   try {
     transcribed = false;
     let model = req.body.model || "";
+    let response = "";
 
     if (mimetype == "application/zip" || mimetype == "application/x-zip-compressed" || mimetype == "multipart/x-zip") {
       let targetdir = CALIOPE_AUDIOS_PATH;
@@ -88,12 +89,13 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
     let cmd = new Promise(function (resolve, reject) {
       working = true;
       shell.cd('/app/application/asr/decode');
-      shell.exec('./asr/decode/script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
+      shell.exec('./script.sh ' + ((model) ? model : ''), (error, stdout, stderr) => {
         if (error != null) {
           statusCode = 500;
-          reject(`exec error: ${JSON.stringify(error)}`);
+          response = `exec error: ${JSON.stringify(error)}`;
         }
         shell.rm('/app/application/asr/decode/buzon_recortado/*');
+        response = "Transcription OK";
         resolve(true);
       });
     });
@@ -104,7 +106,7 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
     });
 
     res.status(200).json({
-      response: '/transcription/text.csv',
+      response: response,
       working,
       transcribed
     });
