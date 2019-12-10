@@ -7,8 +7,8 @@ const util = require('util');
 const fs = require('fs');
 const multer = require('multer');
 const Promise = require('bluebird');
-const CALIOPE_AUDIOS_PATH = './asr/decode/buzon_recortado';
-const ZIP_PATH = './uploads';
+const CALIOPE_AUDIOS_PATH = '/app/application/asr/decode/buzon_recortado';
+const ZIP_PATH = '/app/application/uploads';
 let mimetype = null;
 let filename = null;
 let working = false;
@@ -19,9 +19,6 @@ const storage = multer.diskStorage({
     if (file.mimetype == "audio/wav" || file.mimetype == "audio/x-wav") {
       cb(null, '/app/application/asr/decode/buzon_recortado');
     } else {
-      if (!fs.existsSync(ZIP_PATH)) {
-        fs.mkdirSync(ZIP_PATH);
-      }
       cb(null, '/app/application/uploads');
     }
   },
@@ -80,7 +77,7 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
 
     if (mimetype == "application/zip" || mimetype == "application/x-zip-compressed" || mimetype == "multipart/x-zip") {
       let targetdir = CALIOPE_AUDIOS_PATH;
-      let result = await zipper(path.resolve(`${ZIP_PATH}/${filename}`), path.resolve(targetdir));
+      let result = await zipper(`${ZIP_PATH}/${filename}`, targetdir);
       if (fs.existsSync(ZIP_PATH)) {
         delfiles(ZIP_PATH);
       }
@@ -125,7 +122,7 @@ router.get('/', (req, res, next) => {
 
 router.get('/download', (req, res) => {
   transcribed = false;
-  const file = `${path.resolve('./public/transcription/')}/text.csv`;
+  const file = `/app/application/public/transcription/text.csv`;
   res.download(file);
 });
 
